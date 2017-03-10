@@ -1,53 +1,61 @@
-#include "Windows.h"
-#include "resource.h"
-#include "cmath"
-#include "stdio.h"
-BOOL CALLBACK DialogProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	char Text[64];
-	double x, z;
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		break;
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDOK:
-		case IDCANCEL:
-			EndDialog(hwnd, LOWORD(wParam));
-			break;
-		case IDC_BUTTON_Y1:
-		case IDC_BUTTON_Y2:
-			SendDlgItemMessage(hwnd, IDC_EDITX, WM_GETTEXT, 63, (LPARAM)Text);
-			if (sscanf_s(Text, "%lf", &x) < 1)
-			{
-				MessageBox(hwnd, "Неверный формат первого операнда", "Ошибка формата", MB_OK | MB_ICONHAND);
-				return TRUE;
-			}
-			char Func;
-			if (LOWORD(wParam) == IDC_BUTTON_Y1) { z = exp(x); Func = 'e'; }
-			if (LOWORD(wParam) == IDC_BUTTON_Y2) { z = 2 * x;  Func = '2'; }
-			sprintf(Text, "%f", z);
-			SendDlgItemMessage(hwnd, IDC_EDIT_Y, WM_SETTEXT, 0, (LPARAM)Text);
-			sprintf_s(Text, "%c(%f)=%f", Func, x, z);
-			SendDlgItemMessage(hwnd, IDC_LIST1, LB_ADDSTRING, 0, (LPARAM)Text);
-			break;
-		case IDC_BUTTON_CLEAR:
-			SendDlgItemMessage(hwnd, IDC_LIST1, LB_RESETCONTENT, 0, 0);
-			return TRUE;
-		}
-		break;
-	case WM_CLOSE:
-		EndDialog(hwnd, 0);
-		return FALSE;
+#include "iostream"
+#include <string.h>
+using namespace std;
+class Point {
+	char Surname [64];
+	int point;
+public:
+	Point() {
+		point = Surname [0] = 0;
 	}
-	return FALSE;
-}
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+	void set(char sur[], double p) {
+		strcpy(Surname, sur);
+		point = p;
+	}
+
+	Point(char sur[], double p) {
+		strcpy(Surname, sur);
+		point = p;
+	}
+
+	void print() {
+		cout << "Surname: " << Surname << endl << "Point: " << point << endl;
+	}
+};
+int main()
 {
-	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), 0, DialogProc);
+	int n;
+	char a[256], b[256];
+	do
+	{
+		cout << "Number of students: ";
+		cin >> b;
+		n = atoi(b);
+	} while (n <= 0);
+	char S[64];
+	double r, k = 0;
+	Point **ppA;
+	ppA = new Point*[n];
+	for (unsigned int i = 0; i<n; ++i)
+	{
+		cout << "Student [" << (i + 1) << "] Surname: ";
+		cin >> S;
+		do
+		{
+			cout << "Point: ";
+			cin >> a ;
+			r = atoi(a);
+		} while (r <= 0);
+		ppA[i] = new Point(S, r);
+		k += r;
+	}
+	for (unsigned int i = 0; i < n; ++i)
+		ppA[i]->print();
+	cout << "Average point: " << k / n;
+	for (unsigned int i = 0; i < n; ++i) delete ppA[i];
+	delete[]ppA;
+	cout << endl << endl << "Press any button to exit the program!" << endl;
+	system("pause");
 	return 0;
 }
-
